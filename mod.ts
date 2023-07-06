@@ -4,10 +4,13 @@ import { serveDir } from 'std/http/file_server.ts'
 import { CreateAppOptions } from './types.ts'
 import { VNode } from 'preact'
 
-export async function createApp<I = undefined>(opts?: CreateAppOptions<I>) {
-  const optionsWithDefaults = {
+export async function createApp<I>(opts?: CreateAppOptions<I>) {
+  const optionsWithDefaults: Required<CreateAppOptions<I>> = {
     publicDir: 'public',
     routesDir: 'routes',
+    notFoundFile: '404',
+    layoutFile: 'layout',
+    routeFile: 'route',
     serveOptions: {},
     inject: undefined as I,
     ...opts,
@@ -40,7 +43,7 @@ export async function createApp<I = undefined>(opts?: CreateAppOptions<I>) {
       let res = await handler(req, inject)
 
       // Handle non-vnode returns
-      if (!isVNode(res)) return res
+      if (res instanceof Response) return res
 
       // Run layouts in reverse order
       for (let i = layouts.length - 1; i >= 0; i--) {
@@ -65,12 +68,6 @@ export async function createApp<I = undefined>(opts?: CreateAppOptions<I>) {
   })
 
   return server.finished
-}
-
-// TODO: Is there a better way to do this?
-// deno-lint-ignore no-explicit-any
-function isVNode(vnode: any): vnode is VNode {
-  return vnode && typeof vnode.type === 'function'
 }
 
 // Get date formatted like YYYY-MM-DD HH:MM:SS
