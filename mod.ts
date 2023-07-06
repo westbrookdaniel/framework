@@ -2,7 +2,6 @@ import { render } from 'preact-render-to-string'
 import { MissingPageError, createRouterUtils } from './router.ts'
 import { serveDir } from 'std/http/file_server.ts'
 import { CreateAppOptions } from './types.ts'
-import { VNode } from 'preact'
 
 export async function createApp<I>(opts?: CreateAppOptions<I>) {
   const optionsWithDefaults: Required<CreateAppOptions<I>> = {
@@ -12,7 +11,7 @@ export async function createApp<I>(opts?: CreateAppOptions<I>) {
     layoutFile: 'layout',
     routeFile: 'route',
     serveOptions: {},
-    inject: undefined as I,
+    inject: () => undefined as I,
     ...opts,
   }
 
@@ -40,7 +39,9 @@ export async function createApp<I>(opts?: CreateAppOptions<I>) {
       let handler = route[method]
       if (!handler) handler = getNotFoundHandler()[method]
 
-      let res = await handler(req, inject)
+      const toInject = await inject(req)
+
+      let res = await handler(req, toInject)
 
       // Handle non-vnode returns
       if (res instanceof Response) return res
@@ -51,7 +52,7 @@ export async function createApp<I>(opts?: CreateAppOptions<I>) {
         const layoutHandler = layout[method]
         if (!layoutHandler) continue
         // Type assertion because we know vnode is not undefined
-        res = await layoutHandler({ children: res! }, req, inject)
+        res = await layoutHandler({ children: res! }, req, toInject)
       }
       const html = '<!DOCTYPE html>' + render(res)
       return new Response(html, { headers: { 'Content-Type': 'text/html' } })

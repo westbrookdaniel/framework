@@ -56,5 +56,5 @@ export type CreateAppOptions<I> = {
    * e.g. page -> layout for subroute -> layout for root
    * Note: layouts will only be used if the page handler returns a vnode
    */
-  inject?: I
+  inject?: (req: Request) => Promise<I> | I
 }
