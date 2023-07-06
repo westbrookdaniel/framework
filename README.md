@@ -1,5 +1,7 @@
 # @westbrookdaniel/framework
 
+> NOTE: This framework could change wildly on a whim. It's just whatever I like.
+
 Deno REST framework for building web applications.
 
 ## Example
