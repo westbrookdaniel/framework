@@ -6,10 +6,13 @@ export type Handler<I> = Route<I> | Layout<I>
 export type Route<I> = Record<HTTPMethods, RouteHandler<I>>
 export type Layout<I> = Record<HTTPMethods, LayoutHandler<I>>
 
-export type RouteHandler<I> = (req: Request, injected: I) => RouteReturn
+export type RouteHandler<I = undefined> = (
+  req: Request,
+  injected: I
+) => RouteReturn
 export type RouteReturn = Response | Promise<Response> | VNode | Promise<VNode>
 
-export type LayoutHandler<I> = (
+export type LayoutHandler<I = undefined> = (
   props: LayoutProps,
   req: Request,
   injected: I
